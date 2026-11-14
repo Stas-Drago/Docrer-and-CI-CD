@@ -1,0 +1,18 @@
+:80 {
+  handle /api/v1/courses* {
+    reverse_proxy catalog-service:3001
+  }
+  handle /api/v1/enrollments* {
+    reverse_proxy enrollment-service:3002
+  }
+  handle /api/v1/payments* {
+    reverse_proxy payment-service:3003
+  }
+  handle /api/v1/notifications* {
+    reverse_proxy notification-service:3004
+  }
+  respond /health "{\"status\":\"online\",\"service\":\"api-gateway\"}" 200
+  handle {
+    respond "Math courses API gateway. Use /api/v1/courses" 200
+  }
+}

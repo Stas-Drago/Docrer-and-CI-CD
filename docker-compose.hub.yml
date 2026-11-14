@@ -1,0 +1,14 @@
+# Запуск уже опубликованных образов Docker Hub.
+# Использование: docker compose -f docker-compose.yml -f docker-compose.hub.yml up -d --no-build
+services:
+  catalog-service:
+    image: ${DOCKERHUB_USERNAME}/mathcourses-catalog-service:${IMAGE_TAG:-latest}
+
+  enrollment-service:
+    image: ${DOCKERHUB_USERNAME}/mathcourses-enrollment-service:${IMAGE_TAG:-latest}
+
+  payment-service:
+    image: ${DOCKERHUB_USERNAME}/mathcourses-payment-service:${IMAGE_TAG:-latest}
+
+  notification-service:
+    image: ${DOCKERHUB_USERNAME}/mathcourses-notification-service:${IMAGE_TAG:-latest}

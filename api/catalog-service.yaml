@@ -1,0 +1,509 @@
+openapi: 3.1.0
+info:
+  title: catalog-service
+  version: 1.0.0
+  description: Платформа онлайн курсов по математике
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.mathcourses.example
+security:
+- bearerAuth: []
+tags:
+- name: public
+  description: Через API Gateway
+- name: internal
+  description: Только для сервисов
+paths:
+  /api/v1/courses:
+    post:
+      tags:
+      - public
+      summary: POST /api/v1/courses
+      operationId: postApiV1Courses
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+              example:
+                id: course-101
+                title: Алгебра для ЕГЭ
+                priceRub: 2490
+                status: PUBLISHED
+                teacherId: teacher-7
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseRequest'
+            example:
+              title: Алгебра для ЕГЭ
+              priceRub: 2490
+    get:
+      tags:
+      - public
+      summary: GET /api/v1/courses
+      operationId: getApiV1Courses
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseList'
+              example:
+                items: []
+                page: 1
+                size: 20
+                total: 0
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+  /api/v1/courses/{courseId}:
+    get:
+      tags:
+      - public
+      summary: GET /api/v1/courses/{courseId}
+      operationId: getApiV1CoursesCourseid
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+              example:
+                id: course-101
+                title: Алгебра для ЕГЭ
+                priceRub: 2490
+                status: PUBLISHED
+                teacherId: teacher-7
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+  /internal/v1/courses/{courseId}:
+    get:
+      tags:
+      - internal
+      summary: GET /internal/v1/courses/{courseId}
+      operationId: getInternalV1CoursesCourseid
+      parameters:
+      - name: courseId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+              example:
+                id: course-101
+                title: Алгебра для ЕГЭ
+                priceRub: 2490
+                status: PUBLISHED
+                teacherId: teacher-7
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - traceId
+      properties:
+        type:
+          type: string
+          example: https://mathcourses.example/problems/conflict
+        title:
+          type: string
+          example: Конфликт
+        status:
+          type: integer
+          example: 409
+        detail:
+          type: string
+          example: Запись уже существует
+        traceId:
+          type: string
+          example: trace-42
+    Course:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - title
+      - priceRub
+      - status
+      - teacherId
+      properties:
+        id:
+          type: string
+          example: course-101
+        title:
+          type: string
+          example: Алгебра для ЕГЭ
+        priceRub:
+          type: integer
+          example: 2490
+        status:
+          type: string
+          example: PUBLISHED
+        teacherId:
+          type: string
+          example: teacher-7
+    CourseList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 1
+    CreateCourseRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - title
+      - priceRub
+      properties:
+        title:
+          type: string
+          example: Алгебра для ЕГЭ
+        priceRub:
+          type: integer
+          example: 2490
+    Event_course_updated:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: course.updated
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - courseId
+          - status
+          properties:
+            courseId:
+              type: string
+              example: course-101
+            status:
+              type: string
+              example: PUBLISHED

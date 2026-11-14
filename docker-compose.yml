@@ -1,0 +1,110 @@
+name: mathcourses
+
+x-service: &service
+  build:
+    context: .
+    dockerfile: services/Dockerfile
+  restart: unless-stopped
+  depends_on:
+    rabbitmq:
+      condition: service_healthy
+  environment:
+    RABBITMQ_URL: amqp://rabbitmq
+    DATA_DIR: /data
+  networks:
+    - internal
+
+services:
+  gateway:
+    image: caddy:2-alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./gateway/Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      catalog-service:
+        condition: service_started
+      enrollment-service:
+        condition: service_started
+      payment-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
+    networks:
+      - public
+      - internal
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - internal
+
+  catalog-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+      args: { SERVICE: catalog-service }
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATA_DIR: /data
+      PORT: 3001
+    volumes:
+      - catalog_data:/data
+
+  enrollment-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+      args: { SERVICE: enrollment-service }
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATA_DIR: /data
+      PORT: 3002
+      CATALOG_URL: http://catalog-service:3001
+    volumes:
+      - enrollment_data:/data
+
+  payment-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+      args: { SERVICE: payment-service }
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATA_DIR: /data
+      PORT: 3003
+      PAYMENT_MODE: ${PAYMENT_MODE:-success}
+    volumes:
+      - payment_data:/data
+
+  notification-service:
+    <<: *service
+    build:
+      context: .
+      dockerfile: services/Dockerfile
+      args: { SERVICE: notification-service }
+    environment:
+      RABBITMQ_URL: amqp://rabbitmq
+      DATA_DIR: /data
+      PORT: 3004
+    volumes:
+      - notification_data:/data
+
+networks:
+  public:
+  internal:
+    internal: true
+
+volumes:
+  catalog_data:
+  enrollment_data:
+  payment_data:
+  notification_data:

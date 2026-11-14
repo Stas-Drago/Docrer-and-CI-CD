@@ -1,0 +1,966 @@
+openapi: 3.1.0
+info:
+  title: enrollment-service
+  version: 1.0.0
+  description: Платформа онлайн курсов по математике
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+- url: https://api.mathcourses.example
+security:
+- bearerAuth: []
+tags:
+- name: public
+  description: Через API Gateway
+- name: internal
+  description: Только для сервисов
+paths:
+  /api/v1/enrollments:
+    post:
+      tags:
+      - public
+      summary: POST /api/v1/enrollments
+      operationId: postApiV1Enrollments
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+      responses:
+        '201':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+              example:
+                id: enr-42
+                courseId: course-101
+                studentId: student-7
+                priceRub: 2490
+                status: PENDING_PAYMENT
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEnrollmentRequest'
+            example:
+              courseId: course-101
+    get:
+      tags:
+      - public
+      summary: GET /api/v1/enrollments
+      operationId: getApiV1Enrollments
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 20
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrollmentList'
+              example:
+                items: []
+                page: 1
+                size: 20
+                total: 0
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+  /api/v1/enrollments/{enrollmentId}:
+    get:
+      tags:
+      - public
+      summary: GET /api/v1/enrollments/{enrollmentId}
+      operationId: getApiV1EnrollmentsEnrollmentid
+      parameters:
+      - name: enrollmentId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+              example:
+                id: enr-42
+                courseId: course-101
+                studentId: student-7
+                priceRub: 2490
+                status: PENDING_PAYMENT
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+  /internal/v1/enrollments/{enrollmentId}:
+    get:
+      tags:
+      - internal
+      summary: GET /internal/v1/enrollments/{enrollmentId}
+      operationId: getInternalV1EnrollmentsEnrollmentid
+      parameters:
+      - name: enrollmentId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+              example:
+                id: enr-42
+                courseId: course-101
+                studentId: student-7
+                priceRub: 2490
+                status: PENDING_PAYMENT
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+  /internal/v1/enrollments/{enrollmentId}/activate:
+    post:
+      tags:
+      - internal
+      summary: POST /internal/v1/enrollments/{enrollmentId}/activate
+      operationId: postInternalV1EnrollmentsEnrollmentidActivate
+      parameters:
+      - name: enrollmentId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+              example:
+                id: enr-42
+                courseId: course-101
+                studentId: student-7
+                priceRub: 2490
+                status: PENDING_PAYMENT
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateEnrollmentRequest'
+            example:
+              paymentId: pay-42
+              correlationId: corr-42
+  /internal/v1/enrollments/{enrollmentId}/cancel:
+    post:
+      tags:
+      - internal
+      summary: POST /internal/v1/enrollments/{enrollmentId}/cancel
+      operationId: postInternalV1EnrollmentsEnrollmentidCancel
+      parameters:
+      - name: enrollmentId
+        in: path
+        required: true
+        schema:
+          type: string
+          example: example-42
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+      responses:
+        '200':
+          description: Успех
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+              example:
+                id: enr-42
+                courseId: course-101
+                studentId: student-7
+                priceRub: 2490
+                status: PENDING_PAYMENT
+        '400':
+          description: Некорректный запрос
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-400
+                title: Некорректный запрос
+                status: 400
+                detail: Описание ошибки
+                traceId: trace-42
+        '401':
+          description: Не авторизован
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-401
+                title: Не авторизован
+                status: 401
+                detail: Описание ошибки
+                traceId: trace-42
+        '404':
+          description: Не найдено
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-404
+                title: Не найдено
+                status: 404
+                detail: Описание ошибки
+                traceId: trace-42
+        '409':
+          description: Конфликт
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-409
+                title: Конфликт
+                status: 409
+                detail: Описание ошибки
+                traceId: trace-42
+        '503':
+          description: Сервис недоступен
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+              example:
+                type: https://mathcourses.example/problems/http-503
+                title: Сервис недоступен
+                status: 503
+                detail: Описание ошибки
+                traceId: trace-42
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - title
+      - status
+      - detail
+      - traceId
+      properties:
+        type:
+          type: string
+          example: https://mathcourses.example/problems/conflict
+        title:
+          type: string
+          example: Конфликт
+        status:
+          type: integer
+          example: 409
+        detail:
+          type: string
+          example: Запись уже существует
+        traceId:
+          type: string
+          example: trace-42
+    Enrollment:
+      type: object
+      additionalProperties: false
+      required:
+      - id
+      - courseId
+      - studentId
+      - priceRub
+      - status
+      properties:
+        id:
+          type: string
+          example: enr-42
+        courseId:
+          type: string
+          example: course-101
+        studentId:
+          type: string
+          example: student-7
+        priceRub:
+          type: integer
+          example: 2490
+        status:
+          type: string
+          example: PENDING_PAYMENT
+    EnrollmentList:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - page
+      - size
+      - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Enrollment'
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 1
+    CreateEnrollmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - courseId
+      properties:
+        courseId:
+          type: string
+          example: course-101
+    ActivateEnrollmentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - paymentId
+      - correlationId
+      properties:
+        paymentId:
+          type: string
+          example: pay-42
+        correlationId:
+          type: string
+          example: corr-42
+    Event_course_updated:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: course.updated
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - courseId
+          - status
+          properties:
+            courseId:
+              type: string
+              example: course-101
+            status:
+              type: string
+              example: PUBLISHED
+    Event_enrollment_created:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: enrollment.created
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - courseId
+          - studentId
+          - amountRub
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            courseId:
+              type: string
+              example: course-101
+            studentId:
+              type: string
+              example: student-7
+            amountRub:
+              type: integer
+              example: 2490
+    Event_payment_succeeded:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: payment.succeeded
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - paymentId
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            paymentId:
+              type: string
+              example: pay-42
+    Event_payment_failed:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: payment.failed
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - reason
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            reason:
+              type: string
+              example: declined
+    Event_enrollment_activated:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: enrollment.activated
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - studentId
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            studentId:
+              type: string
+              example: student-7
+    Event_enrollment_cancelled:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: enrollment.cancelled
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - studentId
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            studentId:
+              type: string
+              example: student-7
+    Event_payment_refunded:
+      type: object
+      additionalProperties: false
+      required:
+      - eventId
+      - eventType
+      - occurredAt
+      - schemaVersion
+      - correlationId
+      - payload
+      properties:
+        eventId:
+          type: string
+          format: uuid
+          example: e97f4c5a-794e-4dbd-94b1-67e5771076c7
+        eventType:
+          type: string
+          example: payment.refunded
+        occurredAt:
+          type: string
+          format: date-time
+          example: '2026-11-06T10:00:00Z'
+        schemaVersion:
+          type: integer
+          example: 1
+        correlationId:
+          type: string
+          example: corr-42
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+          - enrollmentId
+          - paymentId
+          properties:
+            enrollmentId:
+              type: string
+              example: enr-42
+            paymentId:
+              type: string
+              example: pay-42
